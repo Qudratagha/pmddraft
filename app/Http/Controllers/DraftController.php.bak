@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Customer;
+use App\Models\Draft;
+use App\Http\Requests\StoreDraftRequest;
+use App\Http\Requests\UpdateDraftRequest;
+use Dflydev\DotAccessData\Data;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+
+class DraftController extends Controller
+{
+    public function index(Request $request)
+    {
+        $request->propCode = 77;
+		$customer = Customer::where('customer_id',$request->propCode)->first();
+		return view('edit_draft',compact('customer'));
+    }
+    public function create()
+    {
+        //
+    }
+    public function store(StoreDraftRequest $request)
+    {
+        //
+    }
+    public function show(Draft $draft)
+    {
+        //
+    }
+    public function edit(Draft $draft)
+    {
+        //
+    }
+    public function update(UpdateDraftRequest $request, Draft $draft)
+    {
+        //
+    }
+    public function destroy(Draft $draft)
+    {
+        //
+    }
+}
