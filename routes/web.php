@@ -29,6 +29,7 @@ Route::get('/edit',[\App\Http\Controllers\DraftController::class, 'edit'])->name
 Route::post('/editPreview',[\App\Http\Controllers\DraftController::class, 'editPreview'])->name('editPreview');
 Route::post('/editPreviewPrint',[\App\Http\Controllers\DraftController::class, 'editPreviewPrint'])->name('editPreviewPrint');
 
+Route::post('/editDraft',[\App\Http\Controllers\DraftController::class, 'editDraft'])->name('editDraft');
 
 
 

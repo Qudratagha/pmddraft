@@ -15,15 +15,15 @@ class DraftController extends Controller
 {
     public function index(Request $request)
     {
-        // $cusPlotID  = 125651;
-        // $docTypeID  = 5051;
-        // $userID     = 2;
-        // $userRole   = "ASSIATANT";
+        $cusPlotID  = 125651;
+        $docTypeID  = 5051;
+        $userID     = 2;
+        $userRole   = "ASSIATANT";
 
-        $cusPlotID  = $request['cusPlotID'];
-        $docTypeID  = $request['docTypeID'];
-        $userID     = $request['userId'];
-        $userRole   = $request['userRole'];
+        // $cusPlotID  = $request['cusPlotID'];
+        // $docTypeID  = $request['docTypeID'];
+        // $userID     = $request['userId'];
+        // $userRole   = $request['userRole'];
 
         $draftsExists = DB::select("SELECT * FROM saved_drafts WHERE doc_type_id = '$docTypeID' ");
         if (empty($draftsExists)) {
@@ -191,7 +191,7 @@ class DraftController extends Controller
                                 JOIN [user] ON saved_drafts_log.created_by_id = [user].user_id
                                 WHERE saved_drafts_log.draft_entry_id = '$draftEntryID'  ");
         
-        return view('edit_draft', compact('saveDraft', 'saveDraftLog'));
+        return view('edit_draft', compact('saveDraft', 'saveDraftLog', 'draftEntryID'));
 
         
     }
@@ -258,8 +258,15 @@ class DraftController extends Controller
         $cusDetails = $data['cusDetails'];
         $content    = $data['body'];
         $draftTitle = $data['draftTitle'];
+
         return view('editPreview', compact('cusDetails', 'draftTitle', 'content'));
   
+    }
+
+    public function editDraft(Request $request)
+    {
+        $body = DB::select(" SELECT edited_draft FROM saved_drafts WHERE draft_entry_id = '$request->draftEntryID'");
+        return response()->json($body);
     }
 
     public function store(StoreDraftRequest $request)
