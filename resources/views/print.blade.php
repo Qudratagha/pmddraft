@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Simple Page</title>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <style>
       body {
@@ -75,9 +71,9 @@
     <p id="title">{{ $draftTitle }}</p>
     <div class="d-flex-end">
       <div class="info">
-        <div class=" mb-0">
+        <div class="mb-0">
           <b>Defense Housing Authority, Quetta</b>
-      </div>
+        </div>
         <div class=" mb-0">Main Airport Road Quetta</div>
         <div class=" mb-0">Telephone Number: 081-2864446-7</div>
         <div class=" mb-0">Email: info@dhaquetta.com</div>
@@ -92,21 +88,30 @@
       </div>
     </div>
 
-    <div class="d-flex-between">
-      <div class="d-inline-block">
-         To
+
+    <div class="container">
+      <div class="row">
+          <div class="col-md-8" style="padding-right:0">
+              <div class="d-flex">
+                  <div class="d-inline-block">
+                      To
+                  </div>
+                  <div class="d-inline-block" style="margin-left: 20px;">
+                      <article>{{$cusDetails[0]['name']}} {{$cusDetails[0]['relation_title']}} {{$cusDetails[0]['So_Do_Wo']}}</article>
+                      <article>({{$cusDetails[0]['cnic_nicop']}})</article>
+                      <article>{{$cusDetails[0]['present_address']}}</article>
+                      <article>{{$cusDetails[0]['phone_no']}}</article>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-4 text-right" style="padding-right:0">
+              <div class="d-inline-block" >
+                  <img src="{{asset('/pictures/draftPic.png')}}" alt="Image Description" height="100" width="95">
+              </div>
+          </div>
       </div>
-      <div class="d-inline-block" style="margin-left:20px">
-          <article>{{$cusDetails[0]['name']}} {{$cusDetails[0]['relation_title']}} {{$cusDetails[0]['So_Do_Wo']}}</article>
-          <article>({{ $cusDetails[0]['cnic_nicop'] }})</article>
-          <article>{{ $cusDetails[0]['present_address'] }}</article>
-          <article>{{ $cusDetails[0]['phone_no'] }}</article>
-      </div>
-      <div></div>
-      <div class="d-inline-block align-right">
-          <img src="{{asset('/pictures/draftPic.png')}}" alt="Image Description" height="100" width="95">
-      </div>
-    </div>
+  </div>
+
     <div class="subject"> Subject: <span><b><u>{{ $draftTitle}}</u></b></span>
     </div>
     <div><span>DHAQ Membership No. {{ $cusDetails[0]['membership_prefix_no'] }}</span></div>
@@ -114,11 +119,5 @@
           {!! $content !!}
     </div>
   </body>
-  <!-- <script>
-        $(document).ready(function () {
-            window.print();
-        });
-    </script> -->
-</html>
 
 

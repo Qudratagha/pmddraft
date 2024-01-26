@@ -64,7 +64,6 @@
                             </div>
                             <div class="col">
 
-                            <!-- <button type="submit" class="btn btn-secondary">Print</button> -->
                             <form method="POST" action="{{route('printDraft')}}" enctype="multipart/form-data" id="printDraft">
                                 @csrf
                                 <input type="hidden" name="cusPlotID"  id="cusPlotID"   value="{{ $cusPlotID }}">
@@ -105,6 +104,7 @@
 
 <script>
     function saveDraft(){
+        
         var cusPlotID   = $("#cusPlotID").val();
         var docTypeID   = $("#docTypeID").val();
         var userID      = $("#userID").val();
@@ -114,6 +114,7 @@
         } else {
             var markToMngr  = 0;
         }
+        console.log(cusPlotID);
         var content = tinymce.activeEditor.getContent();
         $.ajax({
                 url: `{{route('saveDraft')}}`,
@@ -128,7 +129,11 @@
                     markToMngr: markToMngr
                 },
                 success: function (response) {
-                    alert('yes baby');
+                    alert(response);
+                    window.alert('Closing window');
+                    window.open('', '_self');
+                    window.close();
+                    
                 },
             });
     }
@@ -176,10 +181,7 @@
                         },
                     });
                 },
-            });
-
-            
-            
+            });           
         }
 </script>
 </body>

@@ -68,89 +68,197 @@
 
                 </tbody>
             </table>
-                <div class="justify-content-center d-flex">
-                    <button type="button" class="d-inline-block btn btn-primary" onclick="editDraft({{$draftEntryID}})">Edit Draft</button>
+                <div class="mt-2 mb-2 justify-content-center d-flex">
+                    <button type="button" class="d-inline-block btn btn-secondary" style="margin-right: 1px" onclick="editDraft({{$draftEntryID}})">Edit Draft</button>
                     <button type="button" class="d-inline-block btn btn-secondary">Approve Draft</button>
                 </div>
             </div>
 
-            <div class="container">
                 <form method="post" action="{{route('print')}}" enctype="multipart/form-data" id="editDraft" class="d-none">
                     @csrf
-                    <!-- <textarea id="tiny" class="tinyContent" name="content"></textarea> -->
+                    <input type="hidden" name="cusPlotID"  id="cusPlotID"   value="{{ $cusPlotID }}">
+                    <input type="hidden" name="docTypeID"  id="docTypeID"   value="{{ $docTypeID }}">
+                    <input type="hidden" name="userID"     id="userID"      value="{{ $userID }}">
+                    <input type="hidden" name="userRole"   id="userRole"    value="{{ $userRole }}">
+                    <textarea id="tiny" class="tinyContent" name="content"></textarea>
+                    <div class="mt-4 d-flex justify-content-center">
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#previewEdit" onclick="previewDraftEdit()"> Preview </button>
+                    </div>
                 </form>
+
+                <div class="modal fade bd-example-modal-lg" id="udpateDraft_{{$docTypeID}}" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg  modal-simple modal-edit-user">
+                        <div class="modal-content  modal-lg p-3 p-md-5" id="modal-content">
+                            <div class="modal-body container">
+
+                            </div>
+
+                            <div class="bottom-line"></div>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col">
+                                        <button class="btn btn-secondary" onclick="updateDraft()">Update</button>
+                                    </div>
+                                    <div class="col">
+                                        <form method="POST" action="{{route('printDraft')}}" enctype="multipart/form-data" id="printDraft">
+                                            @csrf
+                                            <input type="hidden" name="cusPlotID"  id="cusPlotID"   value="{{ $cusPlotID }}">
+                                            <input type="hidden" name="docTypeID"  id="docTypeID"   value="{{ $docTypeID }}">
+                                            <input type="hidden" name="userID"     id="userID"      value="{{ $userID }}">
+                                            <input type="hidden" name="userRole"   id="userRole"    value="{{ $userRole }}">
+                                            <input type="hidden" name="saveDraft"   id="saveDraftID"    value="{{ $saveDraft[0]->draft_entry_id }}">
+                                            
+                                            <input type="hidden" name="content" id="content">
+                                            <button type="button" class="btn btn-secondary" onclick="printDraft({{$docTypeID}})">Print</button>
+                                        </form>                                       
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" onclick="closeModal({{ $docTypeID }})">Cancel</button>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         
-            <script>
-                $('textarea#tiny').tinymce({
-                    height: 400,
-                    plugins: [
-                        'advlist','autolink',
-                        'lists','link','image','charmap','preview','anchor','searchreplace','visualblocks',
-                        'fullscreen','insertdatetime','media','table','help','wordcount',
-                    ],
-                    toolbar: "undo redo print | styleselect | fontselect fontsizeselect fontfamily bold italics underline forecolor backcolor | link image | alignleft aligncenter alignright alignjustify |lineheight | numlist bullist indent outdent | removeformat | spellcheckdialog",    
-                }); 
-                function editDraft(id){
+<script>
+        $('textarea#tiny').tinymce({
+            height: 400,
+            plugins: [
+                'advlist','autolink',
+                'lists','link','image','charmap','preview','anchor','searchreplace','visualblocks',
+                'fullscreen','insertdatetime','media','table','help','wordcount',
+            ],
+            toolbar: "undo redo | styleselect | fontselect fontsizeselect fontfamily bold italics underline forecolor backcolor | link image | alignleft aligncenter alignright alignjustify |lineheight | numlist bullist indent outdent | removeformat | spellcheckdialog",    
+        }); 
+        function editDraft(id){
+            $.ajax({
+                url: `{{route('editDraft')}}`,
+                method: 'post',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    draftEntryID : id,
+                },
+                success: function (response) {
+                    $('#editDraft').removeClass('d-none');
+                    var textareaContent = response[0].edited_draft;
+                    tinyMCE.get('tiny').setContent(textareaContent);
+                }
+            });
+        }
+</script>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<script>    
+    function preview(draftLogID, docTypeID, cusPlotID){
+        $.ajax({
+            url: `{{route('editPreview')}}`,
+            method: 'post',
+            data: {
+                _token: "{{ csrf_token() }}",
+                draftLogID: draftLogID,
+                docTypeID: docTypeID,
+                cusPlotID: cusPlotID
+            },
+            success: function (response) {
+                var cusDetails = response.cusDetails[0];
+                var body = response.body[0];
+                var draftTitle = response.draftTitle;
                 $.ajax({
-                    url: `{{route('editDraft')}}`,
+                    url: `{{route('editPreviewPrint')}}`,
                     method: 'post',
                     data: {
                         _token: "{{ csrf_token() }}",
-                        draftEntryID : id,
+                        cusDetails  : cusDetails,
+                        body        : body,
+                        draftTitle  : draftTitle,
                     },
-                    success: function (response) {
-                        $('#editDraft').removeClass('d-none');
-                        var textarea = '<textarea id="tiny" class="tinyContent" name="content">{!!' + response[0].edited_draft + '!!}</textarea>';
-                        $('#editDraft').append(textarea);
-
-                    }
-                })
-            };    
-            </script>
-            <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-            <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-
-            <script>    
-            function preview(draftLogID, docTypeID, cusPlotID){
-                $.ajax({
-                    url: `{{route('editPreview')}}`,
-                    method: 'post',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        draftLogID: draftLogID,
-                        docTypeID: docTypeID,
-                        cusPlotID: cusPlotID
-                    },
-                    success: function (response) {
-                        var cusDetails = response.cusDetails[0];
-                        var body = response.body[0];
-                        var draftTitle = response.draftTitle;
-                        $.ajax({
-                            url: `{{route('editPreviewPrint')}}`,
-                            method: 'post',
-                            data: {
-                                _token: "{{ csrf_token() }}",
-                                cusDetails  : cusDetails,
-                                body        : body,
-                                draftTitle  : draftTitle,
-                            },
-                            success: function (responseData) {                         
-                                $('.modal-body').html(responseData);
-                                $(`#customModal_${draftLogID}`).modal('show');
-                            },
-                        });
+                    success: function (responseData) {
+                        $('.modal-body').html(responseData);
+                        $(`#customModal_${draftLogID}`).modal('show');
                     },
                 });
-            }
-            function closeModal(draftLogID){
-                $(`#customModal_${draftLogID}`).modal('hide');
-            }
+            },
+        });
+    }
+    function closeModal(draftLogID){
+        $(`#customModal_${draftLogID}`).modal('hide');
+    }
+    function previewDraftEdit(id){
+        var cusPlotID   = $("#cusPlotID").val();
+        var docTypeID   = $("#docTypeID").val();
+        var userID      = $("#userID").val();
+        var userRole    = $("#userRole").val();
+        var content     = tinymce.activeEditor.getContent();
+        
+        $.ajax({
+            url: `{{route('preview')}}`,
+            method: 'post',
+            data: {
+                _token: "{{ csrf_token() }}",
+                cusPlotID: cusPlotID ,
+                docTypeID: docTypeID,
+                userID: userID ,
+                userRole: userRole,
+            },
+
+            success: function (response) {
+                console.log(response);
+                $.ajax({
+                    url: `{{route('print')}}`,
+                    method: 'post',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        draftData: response,
+                        content : content
+                    },
+                    success: function (data) {
+                        $('.modal-body').html(data);
+                        $('#udpateDraft_{{$docTypeID}}').modal('show');
+                    },
+                });
+            },
+        });
+    }
+    function printDraft(data){
+        var content = tinymce.activeEditor.getContent();
+        $('#content').val(content);
+        $('#printDraft').submit();   
+    }
+
+    function updateDraft(){
+        var cusPlotID   = $("#cusPlotID").val();
+        var docTypeID   = $("#docTypeID").val();
+        var userID      = $("#userID").val();
+        var userRole    = $("#userRole").val();
+
+        var saveDraftID   = $("#saveDraftID").val();
+        var content = tinymce.activeEditor.getContent();
+        $.ajax({
+                url: `{{route('updateDraft')}}`,
+                method: 'post',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    cusPlotID: cusPlotID ,
+                    docTypeID: docTypeID,
+                    userID: userID ,
+                    userRole: userRole,
+                    content: content,
+                    saveDraftID: saveDraftID
+                },
+                success: function (response) {
+                    alert('yes baby');
+                },
+            });
+    }
             
-            </script>
+</script>
 </body>
     
 </html>

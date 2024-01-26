@@ -66,8 +66,8 @@
 
     </style>
   </head>
-  <body>
-    <p id="title">{{ $draftTitle }}</p>
+  <body class="mt-3">
+    <p style="margin-top: 70px; margin-bottom: 0" id="title">TITLE DOCUMENT - KEEP IN SAFE CUSTODY</p>
     <div class="d-flex-end">
       <div class="info">
         <div class=" mb-0">
