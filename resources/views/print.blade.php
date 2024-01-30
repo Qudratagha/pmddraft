@@ -89,33 +89,48 @@
     </div>
 
 
-    <div class="container">
+    <div class="container" style="padding-left:0">
       <div class="row">
-          <div class="col-md-8" style="padding-right:0">
-              <div class="d-flex">
-                  <div class="d-inline-block">
-                      To
-                  </div>
-                  <div class="d-inline-block" style="margin-left: 20px;">
-                      <article>{{$cusDetails[0]['name']}} {{$cusDetails[0]['relation_title']}} {{$cusDetails[0]['So_Do_Wo']}}</article>
-                      <article>({{$cusDetails[0]['cnic_nicop']}})</article>
-                      <article>{{$cusDetails[0]['present_address']}}</article>
-                      <article>{{$cusDetails[0]['phone_no']}}</article>
-                  </div>
-              </div>
+        <div class="col-md-8" >
+          <div class="d-inline-block " style="vertical-align: top;">
+              To
           </div>
-          <div class="col-md-4 text-right" style="padding-right:0">
-              <div class="d-inline-block" >
-                  <img src="{{asset('/pictures/draftPic.png')}}" alt="Image Description" height="100" width="95">
-              </div>
-          </div>
+          <span class="d-inline-block" style="margin-left: 20px;">
+          
+              <article>{{$cusDetails[0]['name']}} {{$cusDetails[0]['relation_title']}} {{$cusDetails[0]['So_Do_Wo']}}</article>
+              <article>({{$cusDetails[0]['cnic_nicop']}})</article>
+              <article>{{$cusDetails[0]['present_address']}}</article>
+              <article>{{$cusDetails[0]['phone_no']}}</article>
+          </span>
+        @if(count($cusDetails) > 1)
+          <span class="d-block mt-3" style="margin-left: 40px;">
+              <article>{{$cusDetails[1]['name']}} {{$cusDetails[1]['relation_title']}} {{$cusDetails[1]['So_Do_Wo']}}</article>
+              <article>({{$cusDetails[1]['cnic_nicop']}})</article>
+              <article>{{$cusDetails[1]['present_address']}}</article>
+              <article>{{$cusDetails[1]['phone_no']}}</article>
+          </span>
+          @endif
+        </div>
+        <div class="col-md-4 text-right" style="padding-right:0">
+            <div class="d-block">
+                <img src="{{asset('/pictures/draftPic.png')}}" alt="Image Description" height="100" width="95">
+            </div>
+            @if(count($cusDetails) > 1)
+            <div class="mt-4 d-block">
+                <img src="{{asset('/pictures/draftPic.png')}}" alt="Image Description" height="100" width="95">
+            </div>
+            @endif
+        </div>
       </div>
-  </div>
+    </div>
 
     <div class="subject"> Subject: <span><b><u>{{ $draftTitle}}</u></b></span>
     </div>
-    <div><span>DHAQ Membership No. {{ $cusDetails[0]['membership_prefix_no'] }}</span></div>
-    <div class="body" style="margin: top 10px;">
+    <div><span>DHAQ Membership No. {{ $cusDetails[0]['membership_prefix_no'] }} (A) reference</span></div>
+    @if(count($cusDetails) > 1)
+    <div><span>DHAQ Membership No. {{ $cusDetails[1]['membership_prefix_no'] }} (B) reference</span></div>
+    @endif
+    <div class="body" style="margin: top 15px;">
           {!! $content !!}
     </div>
   </body>

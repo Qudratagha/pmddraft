@@ -56,30 +56,22 @@
                                     <label for=""> Mark To Manager
                                         <input type="checkbox" id="markToMngr" name="markToMngr" value="0">
                                     </label>
-                                </div>
-                                
+                                </div>                                
                             </div>
                             <div class="col">
                                 <button class="btn btn-secondary" onclick="saveDraft()">Save</button>
                             </div>
                             <div class="col">
-
-                            <form method="POST" action="{{route('printDraft')}}" enctype="multipart/form-data" id="printDraft">
-                                @csrf
-                                <input type="hidden" name="cusPlotID"  id="cusPlotID"   value="{{ $cusPlotID }}">
-                                <input type="hidden" name="docTypeID"  id="docTypeID"   value="{{ $docTypeID }}">
-                                <input type="hidden" name="userID"     id="userID"      value="{{ $userID }}">
-                                <input type="hidden" name="userRole"   id="userRole"    value="{{ $userRole }}">
-                                <input type="hidden" name="content" id="content">
-                                <button type="button" class="btn btn-secondary" onclick="printDraft()">Print</button>
-                                
-                            </form>
-                            
-                                
+                                <form method="POST" action="{{route('printDraft')}}" enctype="multipart/form-data" id="printDraft">
+                                    @csrf
+                                    <input type="hidden" name="cusPlotID"  id="cusPlotID"   value="{{ $cusPlotID }}">
+                                    <input type="hidden" name="docTypeID"  id="docTypeID"   value="{{ $docTypeID }}">
+                                    <input type="hidden" name="userID"     id="userID"      value="{{ $userID }}">
+                                    <input type="hidden" name="userRole"   id="userRole"    value="{{ $userRole }}">
+                                    <input type="hidden" name="content" id="content">
+                                    <button type="button" class="btn btn-secondary" onclick="printDraft()">Print</button> 
+                                </form>    
                             </div>
-                            <!-- <div class="col">
-                                <button class="btn btn-secondary" onclick="approveDraft()">Approve</button>
-                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -130,10 +122,7 @@
                 },
                 success: function (response) {
                     alert(response);
-                    window.alert('Closing window');
-                    window.open('', '_self');
-                    window.close();
-                    
+                    location.reload();                    
                 },
             });
     }
@@ -147,6 +136,7 @@
     function approveDraft(){
         console.log('approve btn');
     }
+
     function previewDraft() {
         var cusPlotID   = $("#cusPlotID").val();
         var docTypeID   = $("#docTypeID").val();
@@ -155,34 +145,33 @@
         var content     = tinymce.activeEditor.getContent();
         
         $.ajax({
-                url: `{{route('preview')}}`,
-                method: 'post',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    cusPlotID: cusPlotID ,
-                    docTypeID: docTypeID,
-                    userID: userID ,
-                    userRole: userRole,
-                },
-
-                success: function (response) {
-                    $.ajax({
-                        url: `{{route('print')}}`,
-                        method: 'post',
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            draftData: response,
-                            content : content
-                        },
-                        success: function (data) {
-                            var modal_content = data;
-                            $('.modal-body').html(modal_content);
-                            // $('#preview').modal('show');
-                        },
-                    });
-                },
-            });           
-        }
+            url: `{{route('preview')}}`,
+            method: 'post',
+            data: {
+                _token: "{{ csrf_token() }}",
+                cusPlotID: cusPlotID ,
+                docTypeID: docTypeID,
+                userID: userID ,
+                userRole: userRole,
+            },
+            success: function (response) {
+                $.ajax({
+                    url: `{{route('print')}}`,
+                    method: 'post',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        draftData: response,
+                        content : content
+                    },
+                    success: function (data) {
+                        var modal_content = data;
+                        $('.modal-body').html(modal_content);
+                        // $('#preview').modal('show');
+                    },
+                });
+            },
+        });           
+    }
 </script>
 </body>
 

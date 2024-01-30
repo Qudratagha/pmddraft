@@ -31,6 +31,7 @@ Route::post('/editPreviewPrint',[\App\Http\Controllers\DraftController::class, '
 
 Route::post('/editDraft',[\App\Http\Controllers\DraftController::class, 'editDraft'])->name('editDraft');
 Route::post('/updateDraft',[\App\Http\Controllers\DraftController::class, 'updateDraft'])->name('updateDraft');
+Route::post('/approveDraft',[\App\Http\Controllers\DraftController::class, 'approveDraft'])->name('approveDraft');
 
 
 

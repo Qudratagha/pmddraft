@@ -43,48 +43,49 @@
                         <td>{{ $data->draft_log_id }}</td>
                         <td>{{ $data->Name }}</td>
                         <td>{{ $data->created_date }}</td>
-                        <td>{{ $data->created_time }}</td>
+                        <td>{{ \Carbon\Carbon::parse($data->created_time)->format('H:i') }}</td>
                         <td>      
                             <button type="button" class="btn btn-secondary btn-sm" onclick="preview({{ $data->draft_log_id }}, {{ $saveDraft[0]->doc_type_id }}, {{ $saveDraft[0]->customer_plot_id }})">Preview</button>
-                            
                             <div class="modal fade" tabindex="-1" id="customModal_{{ $data->draft_log_id }}">
                                 <div class="modal-dialog modal-lg">
                                     <div class="modal-content">
                                         <div class="modal-header">                                    
                                         </div>
                                         <div class="modal-body">
-
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" onclick="closeModal({{ $data->draft_log_id }})">Cancel</button>
+                                        
+                                         <div class="modal-footer">
+                                            <div class="mt-2 mb-2 justify-content-center d-flex">
+                                                @if($key == 0)
+                                                <button type="button" class="d-inline-block btn btn-secondary" style="margin-right: 10px">Print</button>
+                                                @endif
+                                                <button type="button" class="d-inline-block btn btn-secondary"  onclick="closeModal({{ $data->draft_log_id }})">Close</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
                         </td>
                     <tr>
                     @endforeach
-
                 </tbody>
             </table>
                 <div class="mt-2 mb-2 justify-content-center d-flex">
                     <button type="button" class="d-inline-block btn btn-secondary" style="margin-right: 1px" onclick="editDraft({{$draftEntryID}})">Edit Draft</button>
-                    <button type="button" class="d-inline-block btn btn-secondary">Approve Draft</button>
+                    <button type="button" class="d-inline-block btn btn-secondary" onclick="approveDraft()">Approve Draft</button>
                 </div>
             </div>
-
-                <form method="post" action="{{route('print')}}" enctype="multipart/form-data" id="editDraft" class="d-none">
-                    @csrf
-                    <input type="hidden" name="cusPlotID"  id="cusPlotID"   value="{{ $cusPlotID }}">
-                    <input type="hidden" name="docTypeID"  id="docTypeID"   value="{{ $docTypeID }}">
-                    <input type="hidden" name="userID"     id="userID"      value="{{ $userID }}">
-                    <input type="hidden" name="userRole"   id="userRole"    value="{{ $userRole }}">
-                    <textarea id="tiny" class="tinyContent" name="content"></textarea>
-                    <div class="mt-4 d-flex justify-content-center">
-                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#previewEdit" onclick="previewDraftEdit()"> Preview </button>
-                    </div>
-                </form>
+            <form method="post" action="{{route('print')}}" enctype="multipart/form-data" id="editDraft" class="d-none">
+                @csrf
+                <input type="hidden" name="cusPlotID"  id="cusPlotID"   value="{{ $cusPlotID }}">
+                <input type="hidden" name="docTypeID"  id="docTypeID"   value="{{ $docTypeID }}">
+                <input type="hidden" name="userID"     id="userID"      value="{{ $userID }}">
+                <input type="hidden" name="userRole"   id="userRole"    value="{{ $userRole }}">
+                <textarea id="tiny" class="tinyContent" name="content"></textarea>
+                <div class="mt-4 d-flex justify-content-center">
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#previewEdit" onclick="previewDraftEdit()"> Preview </button>
+                </div>
+            </form>
 
                 <div class="modal fade bd-example-modal-lg" id="udpateDraft_{{$docTypeID}}" tabindex="-1" role="dialog" aria-hidden="true">
                     <div class="modal-dialog modal-lg  modal-simple modal-edit-user">
@@ -253,7 +254,29 @@
                     saveDraftID: saveDraftID
                 },
                 success: function (response) {
-                    alert('yes baby');
+                    alert('Draft has been updated successfully');
+                    location.reload();
+
+                },
+            });
+    }
+
+
+    function approveDraft(){
+        var saveDraftID   = $("#saveDraftID").val();
+        var userID        = $("#userID").val();
+
+        $.ajax({
+                url: `{{route('approveDraft')}}`,
+                method: 'post',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    saveDraftID: saveDraftID,
+                    userID: userID ,
+                },
+                success: function (response) {
+                    console.log(response);
+
                 },
             });
     }
