@@ -15,34 +15,38 @@ class DraftController extends Controller
 {
     public function index(Request $request)
     {
-        // single
-        $cusPlotID  = 125651;
-        $docTypeID  = 5051;
-        $userID     = 2;
-        $userRole   = "ASSIATANT";
 
-        //double 
-        // $cusPlotID  = 38208;
-        // $docTypeID  = 5052;
-        // $userID     = 2;
-        // $userRole   = "ASSIATANT";
+        // single
+//         $cusPlotID  = 125651;
+//         $docTypeID  = 5051;
+//         $userID     = 2;
+//         $userRole   = "ASSIATANT";
+
+        //double
+         $cusPlotID  = 38208;
+         $docTypeID  = 5052;
+         $userID     = 2;
+         $userRole   = "ASSIATANT";
 
         // $cusPlotID  = $request['cusPlotID'];
         // $docTypeID  = $request['docTypeID'];
         // $userID     = $request['userId'];
         // $userRole   = $request['userRole'];
+            $request['cusPlotID']   = 38208;
+            $request['docTypeID']   = 5052;
+            $request['userId']      = 2;
+            $request['userRole']    = "ASSIATANT";
 
         $draftsExists = DB::select("SELECT * FROM saved_drafts WHERE doc_type_id = '$docTypeID' ");
-        return view('add_draft',compact('cusPlotID','docTypeID','userID','userRole'));
-        // if (empty($draftsExists)) {
-        //     return view('add_draft',compact('cusPlotID','docTypeID','userID','userRole'));
-        // } else {
-        //     return view('edit_draft', ['draftsExists' => $draftsExists]);
-        // }
-                                    
+//        dd($draftsExists);
+         if (empty($draftsExists)) {
+             return view('add_draft',compact('cusPlotID','docTypeID','userID','userRole'));
+         } else {
+            return $this->edit($request);
+         }
     }
 
-    
+
     public function saveDraft(Request $request)
     {
         $cusPlotID  = $request['cusPlotID'];
@@ -51,13 +55,12 @@ class DraftController extends Controller
         $userRole   = $request['userRole'];
         $markToMngr = $request['markToMngr'];
         $body       = $request->content;
-       
+
         $currentDateTime = now()->timezone('Asia/Karachi');
         $date = $currentDateTime->format('Y-m-d');
-        $time = $currentDateTime->format('h:i:s');    
-      
+        $time = $currentDateTime->format('h:i:s');
+
         $existingDraft = DB::select("SELECT * FROM saved_drafts WHERE doc_type_id = '$docTypeID' AND customer_plot_id = '$cusPlotID'");
-        dd($existingDraft);
         if (!empty($existingDraft)) {
             return response()->json('Draft Already Exists');
         }
@@ -72,7 +75,7 @@ class DraftController extends Controller
                 false,
             ]);
         $lastInsertId = DB::getPdo()->lastInsertId();
-        
+
         $saveDraft = DB::insert('INSERT INTO saved_drafts_log (draft_entry_id, edited_draft, created_by_id, created_date, created_time) VALUES (?, ?, ?, ?, ?)', [
             $lastInsertId,
             $body,
@@ -90,19 +93,36 @@ class DraftController extends Controller
         $draftTitle = $request->all()['draftData']['draftTitle'];
         return view('print', compact('cusDetails', 'draftTitle', 'content'));
     }
-
+    public function printNew(Request $request)
+    {
+        $cusDetails = $request->all()['draftData']['cusDetails'];
+        $content = $request->all()['content'];
+        $draftTitle = $request->all()['draftData']['draftTitle'];
+        return view('print_page', compact('cusDetails', 'draftTitle', 'content'));
+    }
     public function printDraft(Request $request)
     {
         $data = $request->all();
-      
-        $content = $data['content'];
+        $docTypeID  = $request['docTypeID'];
+//        $result = DB::select("SELECT COUNT(*) as count, draft_entry_id,edited_draft FROM saved_drafts WHERE doc_type_id = '$docTypeID' GROUP BY draft_entry_id, edited_draft");
+//        if (!empty($result)) {
+//            $content = $result[0]->edited_draft;
+//        } else {
+//            $request['markToMngr'] = $request['markToMngrPrint'];
+//            $this->saveDraft($request);
+//            $lastEntry = DB::select("SELECT TOP 1 * FROM saved_drafts ORDER BY draft_entry_id DESC");
+//            $content = $lastEntry[0]->edited_draft;
+//        }
+
         $cusPlotID = $request->cusPlotID;
         $docTypeID = $request->docTypeID;
+        $content = DB::select(" SELECT edited_draft FROM saved_drafts WHERE doc_type_id = '$docTypeID'");
+        $content = $content[0]->edited_draft;
         $draftTitle = DB::select(" SELECT draft_subject FROM customer_doc_type WHERE doc_type_id = '$docTypeID'");
         $draftTitle = $draftTitle[0]->draft_subject;
         $draftTitle = htmlspecialchars($draftTitle);
         $getPropertyCode = DB::select("
-            SELECT 
+            SELECT
                 plot.property_code
             FROM customer_plot
                 JOIN plot ON customer_plot.plot_id = plot.plot_id
@@ -110,7 +130,7 @@ class DraftController extends Controller
         ");
         $propCode = $getPropertyCode[0]->property_code;
         $cusDetails = DB::select("
-                        SELECT 
+                        SELECT
                             cp.customer_id,
                             pl.plot_categ_id,
                             pl.plot_id,
@@ -119,7 +139,7 @@ class DraftController extends Controller
                             cp.customer_plot_id,
                             mm.membership_prefix_no,
                             cc.phone_no,
-                            cc.present_address,            
+                            cc.present_address,
                             cs.name,
                             cs.cnic_nicop,
                             cs.So_Do_Wo,
@@ -136,19 +156,19 @@ class DraftController extends Controller
                             AND pl.property_code = '$propCode'
                             AND cp.ownership_percentage != '0%'
                     ");
-      return view('printDraft', compact('cusDetails', 'draftTitle', 'content'));
+
+        return view('print', compact('cusDetails', 'draftTitle', 'content'));
     }
 
     public function preview(Request $request)
     {
         $cusPlotID = $request->cusPlotID;
         $docTypeID = $request->docTypeID;
-        
         $draftTitle = DB::select(" SELECT draft_subject FROM customer_doc_type WHERE doc_type_id = '$docTypeID'");
         $draftTitle = $draftTitle[0]->draft_subject;
         $draftTitle = htmlspecialchars($draftTitle);
         $getPropertyCode = DB::select("
-            SELECT 
+            SELECT
                 plot.property_code
             FROM customer_plot
                 JOIN plot ON customer_plot.plot_id = plot.plot_id
@@ -156,7 +176,7 @@ class DraftController extends Controller
         ");
         $propCode = $getPropertyCode[0]->property_code;
         $cusDetails = DB::select("
-                        SELECT 
+                        SELECT
                             cp.customer_id,
                             pl.plot_categ_id,
                             pl.plot_id,
@@ -165,7 +185,7 @@ class DraftController extends Controller
                             cp.customer_plot_id,
                             mm.membership_prefix_no,
                             cc.phone_no,
-                            cc.present_address,            
+                            cc.present_address,
                             cs.name,
                             cs.cnic_nicop,
                             cs.So_Do_Wo,
@@ -185,33 +205,87 @@ class DraftController extends Controller
         return response()->json([
             'cusDetails' => $cusDetails,
             'draftTitle' => $draftTitle
-        ]);        
+        ]);
+    }
+
+    public function showDraft(Request $request)
+    {
+        $data = $request->all();
+        $content = $data['content'];
+        $cusPlotID = $request->cusPlotID;
+        $docTypeID = $request->docTypeID;
+        $draftTitle = DB::select(" SELECT draft_subject FROM customer_doc_type WHERE doc_type_id = '$docTypeID'");
+        $draftTitle = $draftTitle[0]->draft_subject;
+        $draftTitle = htmlspecialchars($draftTitle);
+        $getPropertyCode = DB::select("
+            SELECT
+                plot.property_code
+            FROM customer_plot
+                JOIN plot ON customer_plot.plot_id = plot.plot_id
+            WHERE customer_plot.customer_plot_id = '$cusPlotID'
+        ");
+        $propCode = $getPropertyCode[0]->property_code;
+        $cusDetails = DB::select("
+                        SELECT
+                            cp.customer_id,
+                            pl.plot_categ_id,
+                            pl.plot_id,
+                            cp.is_allocated,
+                            pl.property_code,
+                            cp.customer_plot_id,
+                            mm.membership_prefix_no,
+                            cc.phone_no,
+                            cc.present_address,
+                            cs.name,
+                            cs.cnic_nicop,
+                            cs.So_Do_Wo,
+                            cs.relation_title,
+                            pcat.plot_categ
+                        FROM plot as pl
+                            JOIN customer_plot cp ON pl.plot_id = cp.plot_id
+                            JOIN plot_categ pcat ON pl.plot_categ_id = pcat.plot_categ_id
+                            JOIN customer cs ON cp.customer_id = cs.customer_id
+                            JOIN membership_detail mm ON cs.customer_id = mm.customer_id
+                            JOIN customer_contact cc ON cs.customer_id = cc.customer_id
+                        WHERE mm.current_membership = 1
+                            AND cc.contact_sort_id = 1
+                            AND pl.property_code = '$propCode'
+                            AND cp.ownership_percentage != '0%'
+                    ");
+        return view('show_draft', compact('cusDetails', 'draftTitle', 'content'));
     }
 
     public function edit(Request $request)
     {
-        $cusPlotID  = 125651;
-        $docTypeID  = 5051;
-        $userID     = 2;
-        $userRole   = "ASSIATANT";
+        // single
+//        $cusPlotID  = 125651;
+//        $docTypeID  = 5051;
+//        $userID     = 2;
+//        $userRole   = "ASSIATANT";
+
+        //double
+         $cusPlotID  = 38208;
+         $docTypeID  = 5052;
+         $userID     = 2;
+         $userRole   = "DIRECTOR";
 
         // $cusPlotID  = $request['cusPlotID'];
         // $docTypeID  = $request['docTypeID'];
         // $userID     = $request['userId'];
         // $userRole   = $request['userRole'];
-        
+
         $saveDraft = DB::select("SELECT * FROM saved_drafts WHERE doc_type_id = '$docTypeID'");
         $draftEntryID = $saveDraft[0]->draft_entry_id;
         $saveDraftLog = DB::select("
-                            SELECT 
+                            SELECT
                                 saved_drafts_log.*, [user].Name,
                                 saved_drafts_log.draft_log_id as id
                             FROM saved_drafts_log
                                 JOIN [user] ON saved_drafts_log.created_by_id = [user].user_id
-                                WHERE saved_drafts_log.draft_entry_id = '$draftEntryID'  
+                                WHERE saved_drafts_log.draft_entry_id = '$draftEntryID'
                                 ORDER BY id DESC ");
-        
-        return view('edit_draft', compact('saveDraft', 'saveDraftLog', 'draftEntryID', 'cusPlotID','docTypeID','userID','userRole'));       
+
+        return view('edit_draft', compact('saveDraft', 'saveDraftLog', 'draftEntryID', 'cusPlotID','docTypeID','userID','userRole'));
     }
 
     public function editPreview(Request $request)
@@ -221,12 +295,12 @@ class DraftController extends Controller
         $cusPlotID = $request->cusPlotID;
 
         $body = DB::select(" SELECT edited_draft FROM saved_drafts_log WHERE draft_log_id = '$draftLogID'");
-                
+
         $draftTitle = DB::select(" SELECT draft_subject FROM customer_doc_type WHERE doc_type_id = '$docTypeID'");
         $draftTitle = $draftTitle[0]->draft_subject;
         $draftTitle = htmlspecialchars($draftTitle);
         $getPropertyCode = DB::select("
-            SELECT 
+            SELECT
                 plot.property_code
             FROM customer_plot
                 JOIN plot ON customer_plot.plot_id = plot.plot_id
@@ -234,7 +308,7 @@ class DraftController extends Controller
         ");
         $propCode = $getPropertyCode[0]->property_code;
         $cusDetails = DB::select("
-                        SELECT 
+                        SELECT
                             cp.customer_id,
                             pl.plot_categ_id,
                             pl.plot_id,
@@ -243,7 +317,7 @@ class DraftController extends Controller
                             cp.customer_plot_id,
                             mm.membership_prefix_no,
                             cc.phone_no,
-                            cc.present_address,            
+                            cc.present_address,
                             cs.name,
                             cs.cnic_nicop,
                             cs.So_Do_Wo,
@@ -265,7 +339,7 @@ class DraftController extends Controller
             'draftTitle' => $draftTitle,
             'body'       => $body
 
-        ]);        
+        ]);
     }
 
     public function editPreviewPrint(Request $request)
@@ -287,49 +361,81 @@ class DraftController extends Controller
 
     public function updateDraft(Request $request)
     {
-        // dd($request->all());
-        $cusPlotID  = $request['cusPlotID'];
-        $docTypeID  = $request['docTypeID'];
-        $userID     = $request['userID'];
-        $userRole   = $request['userRole'];
-        $saveDraftID   = $request['saveDraftID'];
-        $body       = $request->content;
-        
+        $cusPlotID      = $request['cusPlotID'];
+        $docTypeID      = $request['docTypeID'];
+        $userID         = $request['userID'];
+        $userRole       = $request['userRole'];
+        $saveDraftID    = $request['saveDraftID'];
+        $body           = $request->content;
+        $markToMngr     = $request['markToMngr'];
+        $markToDir     = $request['markToDir'];
+
 
         $currentDateTime = now()->timezone('Asia/Karachi');
         $date = $currentDateTime->format('Y-m-d');
-        $time = $currentDateTime->format('h:i:s');  
+        $time = $currentDateTime->format('h:i:s');
 
-        $sql = "UPDATE saved_drafts SET edited_draft = :body WHERE draft_entry_id = :draft_entry_id";
+        if ($markToMngr == 1){
+            $sql = "UPDATE saved_drafts
+                SET edited_draft = :body,
+                    mark_to_mngr = :mark_to_mngr
+                WHERE draft_entry_id = :draft_entry_id";
+            DB::update($sql, [
+                'mark_to_mngr' => $markToMngr,
+                'body' => $body,
+                'draft_entry_id' => $saveDraftID,
+            ]);
+        }elseif($markToDir == 1){
+            $sql = "UPDATE saved_drafts
+                SET edited_draft = :body,
+                    mngr_approval = :mngr_approval
+                WHERE draft_entry_id = :draft_entry_id";
+            DB::update($sql, [
+                'mngr_approval' => $markToDir,
+                'body' => $body,
+                'draft_entry_id' => $saveDraftID,
+            ]);
+        }else{
+            $sql = "UPDATE saved_drafts
+                SET edited_draft = :body
+                WHERE draft_entry_id = :draft_entry_id";
             DB::update($sql, [
                 'body' => $body,
                 'draft_entry_id' => $saveDraftID,
             ]);
-
-        $saveDraft = DB::insert('INSERT INTO saved_drafts_log (draft_entry_id, edited_draft, created_by_id, created_date, created_time) VALUES (?, ?, ?, ?, ?)', [
+        }
+        $updateDraft = DB::insert('INSERT INTO saved_drafts_log (draft_entry_id, edited_draft, created_by_id, created_date, created_time) VALUES (?, ?, ?, ?, ?)', [
             $saveDraftID,
             $body,
             $userID,
             $date,
             $time
         ]);
+
     }
 
     public function approveDraft(Request $request)
     {
         $draftEntryID = $request['saveDraftID'];
         $userID = $request['userID'];
-        
+
         $currentDateTime = now()->timezone('Asia/Karachi');
         $date = $currentDateTime->format('Y-m-d');
-        $time = $currentDateTime->format('H:i:s');  
+        $time = $currentDateTime->format('H:i:s');
 
         DB::update(
             'UPDATE saved_drafts
-             SET approved_by_dir = ?, approval_date = ?, aprover_id = ? 
+             SET approved_by_dir = ?, approval_date = ?, aprover_id = ?
              WHERE draft_entry_id = ?',
             [true, $date, $userID, $draftEntryID]
         );
 
+    }
+
+    public function checkEntry(Request $request)
+    {
+        $docTypeID = $request['docTypeID'];
+        $draftsExists = DB::select("SELECT * FROM saved_drafts WHERE doc_type_id = '$docTypeID' ");
+        return response()->json($draftsExists);
     }
 }
