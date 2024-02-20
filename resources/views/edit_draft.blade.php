@@ -6,8 +6,11 @@
     <meta http-equiv="X-UA-Compitable" content="IE=edge">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ asset('css/npmbootstrap.css') }}">
-    <script src="https://cdn.tiny.cloud/1/a75zsruidoxva9mlkyodxbbq4f5g0unzdomf8ote967j9bhf/tinymce/6/tinymce.min.js"
-            referrerpolicy="origin"></script>
+    <script src="{{ asset('js/tinymceapi.js') }}"></script>
+
+    <script src="https://cdn.tiny.cloud/1/a75zsruidoxva9mlkyodxbbq4f5g0unzdomf8ote967j9bhf/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+        <script src="https://cdn.tiny.cloud/1/a75zsruidoxva9mlkyodxbbq4f5g0unzdomf8ote967j9bhf/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
     <style>
         button {
@@ -34,7 +37,6 @@
 </head>
 <body class="py-3">
 <div id="printArea"></div>
-
 <div class="container" style="margin-top: 10px">
     <section class="history">
         <h1>Draft History</h1>
@@ -67,16 +69,17 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                     </div>
-                                    <div class="modal-body">
+                                    <div class="modal-body" style="padding: 50px">
                                     </div>
 
                                     <div class="modal-footer">
                                         <div class="mt-2 mb-2 justify-content-center d-flex">
                                             @if($key == 0)
-                                                <button type="button" class="d-inline-block btn btn-secondary" style="margin-right: 10px" value="{{$docTypeID}}" onclick="printDraft(this.value)">Print</button>
+                                                @if($saveDraft[0]->approved_by_dir == true)
+                                                    <button type="button" class="d-inline-block btn btn-secondary" style="margin-right: 10px" value="{{$docTypeID}}" onclick="printDraft(this.value)">Print</button>
+                                                @endif
                                             @endif
-                                            <button type="button" class="d-inline-block btn btn-secondary"
-                                                    onclick="closeModal({{ $data->draft_log_id }})">Close
+                                            <button type="button" class="d-inline-block btn btn-secondary" onclick="closeModal({{ $data->draft_log_id }})">Close
                                             </button>
                                         </div>
                                     </div>
@@ -169,21 +172,20 @@
 <script src="{{ asset('js/bootstrap.js') }}"></script>
 <script src="{{ asset('js/jquery.js') }}"></script>
 <script src="{{ asset('js/popper.js') }}"></script>
-{{--    <script src="{{ asset('js/tinymce.js') }}"></script>--}}
+<script src="{{ asset('js/tinymce.js') }}"></script>
 <script src="{{ asset('js/tinymce-jquery.js') }}"></script>
 <script>
     $('textarea#tiny').tinymce({
-        height: 300,
+        height: 800,
+        // width: 700,
         plugins: [
             'advlist', 'autolink',
             'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'searchreplace', 'visualblocks',
-            'fullscreen', 'insertdatetime', 'media', 'table', 'help', 'wordcount',
+            'fullscreen', 'insertdatetime', 'media', 'table',
         ],
-        toolbar: "undo redo | styleselect | fontselect fontsizeselect fontfamily bold italics underline forecolor backcolor | link image | alignleft aligncenter alignright alignjustify |lineheight | numlist bullist indent outdent | removeformat | spellcheckdialog",
+        toolbar: "undo redo | styleselect | fontselect fontsizeselect fontfamily bold italics underline forecolor backcolor | link image | alignleft aligncenter alignright alignjustify |lineheight | numlist bullist indent outdent | removeformat ",
     });
-</script>
 
-<script>
     function editDraft(id) {
         $.ajax({
             url: `{{route('editDraft')}}`,
@@ -199,8 +201,7 @@
             }
         });
     }
-</script>
-<script>
+
     function preview(draftLogID, docTypeID, cusPlotID) {
         $.ajax({
             url: `{{route('editPreview')}}`,
@@ -212,7 +213,7 @@
                 cusPlotID: cusPlotID
             },
             success: function (response) {
-                var cusDetails = response.cusDetails[0];
+                var cusDetails = response.cusDetails;
                 var body = response.body[0];
                 var draftTitle = response.draftTitle;
                 $.ajax({
@@ -277,6 +278,7 @@
 
     function printDraft(docTypeID) {
         var cusPlotID = $("#cusPlotID").val();
+
             $.ajax({
             url: `{{route('printDraft')}}`,
             method: 'post',
@@ -294,12 +296,6 @@
         });
     }
 
-    // function printDraft(data) {
-    //     var content = tinymce.activeEditor.getContent();
-    //     $('#content').val(content);
-    //     $('#printDraft').submit();
-    // }
-
     function updateDraft() {
         let markToDir = $('#markToDir').is(':checked') ? 1 : 0;
         let markToMngr = $('#markToMngr').is(':checked') ? 1: 0;
@@ -307,7 +303,8 @@
         var docTypeID = $("#docTypeID").val();
         var userID = $("#userID").val();
         var userRole = $("#userRole").val();
-        var saveDraftID = $("#saveDraftID").val();
+        var saveDraftID = {{$saveDraft[0]->draft_entry_id}}
+        // var saveDraftID = $("#saveDraftID").val();
         var content = tinymce.activeEditor.getContent();
 
         $.ajax({
@@ -332,9 +329,8 @@
         });
     }
 
-
     function approveDraft() {
-        var saveDraftID = $("#saveDraftID").val();
+        var saveDraftID = {{$saveDraft[0]->draft_entry_id}};
         var userID = $("#userID").val();
         $.ajax({
             url: `{{route('approveDraft')}}`,
@@ -345,7 +341,6 @@
                 userID: userID,
             },
             success: function (response) {
-                // console.log(response);
                 alert('Draft has been approved successfully');
                 location.reload();
             },

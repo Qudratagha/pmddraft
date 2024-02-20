@@ -1,12 +1,13 @@
+<!doctype html>
 <head>
     <title>Show draft</title>
     <style>
         body {
-            font-size: 12px;
+            /*font-size: 12px;*/
             margin-top: 50px;
             padding-left: 40px;
             margin-right: 30px;
-            text-align: justify;
+            /*text-align: justify;*/
             text-indent: 0.0cm; /* Adjust the value as needed */
             margin-left: -0.5cm;
         }
@@ -61,13 +62,15 @@
         article {
             text-align: left;
         }
-
+        .fontSize{
+            font-size: 12pt;
+        }
 
     </style>
 </head>
 <body>
-    <p id="title">{{ $draftTitle }}</p>
-    <div class="d-flex-end">
+    <p id="title" class="fontSize"> TITLE DOCUMENT - KEEP IN SAFE CUSTODY</p>
+    <div class="d-flex-end fontSize" >
         <div class="info">
             <div class="mb-0">
                 <b>Defense Housing Authority, Quetta</b>
@@ -85,7 +88,7 @@
             </div>
         </div>
     </div>
-    <div class="container" style="padding-left:0">
+    <div class="container fontSize" style="padding-left:0">
         <div class="row">
             <div class="col-md-8" style="display: inline-block; margin-top: 20px">
                 <div class="d-inline-block " style="vertical-align: top;">
@@ -109,7 +112,9 @@
             </div>
             <div class="col-md-4 text-right" style="padding-right:0; display: inline-block">
                 <div class="d-block">
-                    <img src="{{asset('/pictures/shareA.png')}}" alt="Image Description" height="70">
+                    @if(count($cusDetails) > 1)
+                        <img src="{{asset('/pictures/shareA.png')}}" alt="Image Description" height="70">
+                    @endif
                     <img src="{{ url('/profile-pic/' . urlencode($cusDetails[0]->customer_id)) }}.jpg" alt="Profile Picture" height="80" width="70">
                 </div>
                 @if(count($cusDetails) > 1)
@@ -122,14 +127,14 @@
         </div>
     </div>
 
-    <div class="subject"> Subject:
+    <div class="subject fontSize"> Subject:
         <span><b><u>{{ $draftTitle}}</u></b></span>
     </div>
-    <div>
-        <span>DHAQ Membership No. {{ $cusDetails[0]->membership_prefix_no }} (A) reference</span>
+    <div class="fontSize">
+        <span>DHAQ Membership No. {{ $cusDetails[0]->membership_prefix_no }} @if(count($cusDetails) > 1) (A) reference  @endif</span>
     </div>
     @if(count($cusDetails) > 1)
-        <div style="margin-top: -4px">
+        <div class="fontSize" style="margin-top: -4px">
             <span>DHAQ Membership No. {{ $cusDetails[1]->membership_prefix_no }} (B) reference</span>
         </div>
     @endif

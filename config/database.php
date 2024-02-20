@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlsrv'),
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -77,6 +77,7 @@ return [
             'search_path' => 'public',
             'sslmode' => 'prefer',
         ],
+
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',

@@ -6,36 +6,57 @@ use App\Models\Customer;
 use App\Models\Draft;
 use App\Http\Requests\StoreDraftRequest;
 use App\Http\Requests\UpdateDraftRequest;
+//use Barryvdh\DomPDF\Facade\Pdf;
 use Dflydev\DotAccessData\Data;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+//use Illuminate\Support\Facades\Log
+use Illuminate\Support\Facades\Log;
 use Mews\Purifier\Facades\Purifier;
+use Barryvdh\DomPDF\Facade\Pdf;
+use function Symfony\Component\HttpFoundation\Session\Storage\save;
+use function Symfony\Component\Mime\Header\all;
 
 class DraftController extends Controller
 {
     public function index(Request $request)
     {
 
+
+
+
+//        dd($request->all());
+
         // single
 //         $cusPlotID  = 125651;
 //         $docTypeID  = 5051;
 //         $userID     = 2;
-//         $userRole   = "ASSIATANT";
+//         $userRole   = "ASSISTANT";
 
         //double
-         $cusPlotID  = 38208;
-         $docTypeID  = 5052;
-         $userID     = 2;
-         $userRole   = "ASSIATANT";
+//         $cusPlotID  = 38208;
+//         $docTypeID  = 5052;
+//         $userID     = 2;
+//         $userRole   = "ASSISTANT";
 
-        // $cusPlotID  = $request['cusPlotID'];
-        // $docTypeID  = $request['docTypeID'];
-        // $userID     = $request['userId'];
-        // $userRole   = $request['userRole'];
-            $request['cusPlotID']   = 38208;
-            $request['docTypeID']   = 5052;
-            $request['userId']      = 2;
-            $request['userRole']    = "ASSIATANT";
+//         $cusPlotID  = $request['cusPlotID'];
+//         $docTypeID  = $request['docTypeID'];
+//         $userID     = $request['userID'];
+//         $userRole   = $request['userRole'];
+
+
+//            $request['cusPlotID']   = 38208;
+//            $request['docTypeID']   = 5052;
+//            $request['userId']      = 2;
+//            $request['userRole']    = "ASSISTANT";
+
+        $encodedData = request()->query('data'); // Assuming data is in query string
+        $decodedData = base64_decode($encodedData);
+        $values = explode(':', $decodedData);
+        $cusPlotID = $values[0];
+        $docTypeID = $values[1];
+        $userID = $values[2];
+        $userRole = $values[3];
 
         $draftsExists = DB::select("SELECT * FROM saved_drafts WHERE doc_type_id = '$docTypeID' ");
 //        dd($draftsExists);
@@ -56,15 +77,14 @@ class DraftController extends Controller
         $markToMngr = $request['markToMngr'];
         $body       = $request->content;
 
-        $currentDateTime = now()->timezone('Asia/Karachi');
-        $date = $currentDateTime->format('Y-m-d');
-        $time = $currentDateTime->format('h:i:s');
+        $date = date('Y-m-d');
+        $time = date('H:i:s');
 
         $existingDraft = DB::select("SELECT * FROM saved_drafts WHERE doc_type_id = '$docTypeID' AND customer_plot_id = '$cusPlotID'");
         if (!empty($existingDraft)) {
             return response()->json('Draft Already Exists');
         }
-        $saveDraft = DB::insert('INSERT INTO saved_drafts (doc_type_id, customer_plot_id, created_by, created_date, edited_draft, mark_to_mngr, approved_by_dir, mngr_approval) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
+        DB::insert('INSERT INTO saved_drafts (doc_type_id, customer_plot_id, created_by, created_date, edited_draft, mark_to_mngr, approved_by_dir, mngr_approval) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
                 $docTypeID,
                 $cusPlotID,
                 $userID,
@@ -76,7 +96,7 @@ class DraftController extends Controller
             ]);
         $lastInsertId = DB::getPdo()->lastInsertId();
 
-        $saveDraft = DB::insert('INSERT INTO saved_drafts_log (draft_entry_id, edited_draft, created_by_id, created_date, created_time) VALUES (?, ?, ?, ?, ?)', [
+        DB::insert('INSERT INTO saved_drafts_log (draft_entry_id, edited_draft, created_by_id, created_date, created_time) VALUES (?, ?, ?, ?, ?)', [
             $lastInsertId,
             $body,
             $userID,
@@ -103,17 +123,6 @@ class DraftController extends Controller
     public function printDraft(Request $request)
     {
         $data = $request->all();
-        $docTypeID  = $request['docTypeID'];
-//        $result = DB::select("SELECT COUNT(*) as count, draft_entry_id,edited_draft FROM saved_drafts WHERE doc_type_id = '$docTypeID' GROUP BY draft_entry_id, edited_draft");
-//        if (!empty($result)) {
-//            $content = $result[0]->edited_draft;
-//        } else {
-//            $request['markToMngr'] = $request['markToMngrPrint'];
-//            $this->saveDraft($request);
-//            $lastEntry = DB::select("SELECT TOP 1 * FROM saved_drafts ORDER BY draft_entry_id DESC");
-//            $content = $lastEntry[0]->edited_draft;
-//        }
-
         $cusPlotID = $request->cusPlotID;
         $docTypeID = $request->docTypeID;
         $content = DB::select(" SELECT edited_draft FROM saved_drafts WHERE doc_type_id = '$docTypeID'");
@@ -257,22 +266,31 @@ class DraftController extends Controller
 
     public function edit(Request $request)
     {
+//        dd($request->all());
         // single
 //        $cusPlotID  = 125651;
 //        $docTypeID  = 5051;
 //        $userID     = 2;
-//        $userRole   = "ASSIATANT";
+//        $userRole   = "DIRECTOR";
 
         //double
-         $cusPlotID  = 38208;
-         $docTypeID  = 5052;
-         $userID     = 2;
-         $userRole   = "DIRECTOR";
+//         $cusPlotID  = 38208;
+//         $docTypeID  = 5052;
+//         $userID     = 2;
+//         $userRole   = "DIRECTOR";
 
         // $cusPlotID  = $request['cusPlotID'];
         // $docTypeID  = $request['docTypeID'];
         // $userID     = $request['userId'];
         // $userRole   = $request['userRole'];
+
+        $encodedData = request()->query('data'); // Assuming data is in query string
+        $decodedData = base64_decode($encodedData);
+        $values = explode(':', $decodedData);
+        $cusPlotID = $values[0];
+        $docTypeID = $values[1];
+        $userID = $values[2];
+        $userRole = $values[3];
 
         $saveDraft = DB::select("SELECT * FROM saved_drafts WHERE doc_type_id = '$docTypeID'");
         $draftEntryID = $saveDraft[0]->draft_entry_id;
@@ -338,7 +356,6 @@ class DraftController extends Controller
             'cusDetails' => $cusDetails,
             'draftTitle' => $draftTitle,
             'body'       => $body
-
         ]);
     }
 
@@ -370,37 +387,41 @@ class DraftController extends Controller
         $markToMngr     = $request['markToMngr'];
         $markToDir     = $request['markToDir'];
 
-
-        $currentDateTime = now()->timezone('Asia/Karachi');
-        $date = $currentDateTime->format('Y-m-d');
-        $time = $currentDateTime->format('h:i:s');
+        $date = date('Y-m-d');
+        $time = date('H:i:s');
 
         if ($markToMngr == 1){
             $sql = "UPDATE saved_drafts
                 SET edited_draft = :body,
-                    mark_to_mngr = :mark_to_mngr
+                    mark_to_mngr = :mark_to_mngr,
+                    updated_date = :updated_date
                 WHERE draft_entry_id = :draft_entry_id";
             DB::update($sql, [
                 'mark_to_mngr' => $markToMngr,
                 'body' => $body,
+                'updated_date' => $date,
                 'draft_entry_id' => $saveDraftID,
             ]);
         }elseif($markToDir == 1){
             $sql = "UPDATE saved_drafts
                 SET edited_draft = :body,
+                    updated_date = :updated_date,
                     mngr_approval = :mngr_approval
                 WHERE draft_entry_id = :draft_entry_id";
             DB::update($sql, [
                 'mngr_approval' => $markToDir,
                 'body' => $body,
+                'updated_date' => $date,
                 'draft_entry_id' => $saveDraftID,
             ]);
         }else{
             $sql = "UPDATE saved_drafts
-                SET edited_draft = :body
+                SET edited_draft = :body,
+                updated_date = :updated_date
                 WHERE draft_entry_id = :draft_entry_id";
             DB::update($sql, [
                 'body' => $body,
+                'updated_date' => $date,
                 'draft_entry_id' => $saveDraftID,
             ]);
         }
@@ -418,14 +439,13 @@ class DraftController extends Controller
     {
         $draftEntryID = $request['saveDraftID'];
         $userID = $request['userID'];
-
-        $currentDateTime = now()->timezone('Asia/Karachi');
-        $date = $currentDateTime->format('Y-m-d');
-        $time = $currentDateTime->format('H:i:s');
+        $date = date('Y-m-d');
 
         DB::update(
             'UPDATE saved_drafts
-             SET approved_by_dir = ?, approval_date = ?, aprover_id = ?
+             SET approved_by_dir = ?,
+             approval_date = ?,
+             aprover_id = ?
              WHERE draft_entry_id = ?',
             [true, $date, $userID, $draftEntryID]
         );

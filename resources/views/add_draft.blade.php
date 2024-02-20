@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ asset('css/npmbootstrap.css') }}">
-    <script src="https://cdn.tiny.cloud/1/a75zsruidoxva9mlkyodxbbq4f5g0unzdomf8ote967j9bhf/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+{{--    <script src="https://cdn.tiny.cloud/1/a75zsruidoxva9mlkyodxbbq4f5g0unzdomf8ote967j9bhf/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>--}}
 
     <style>
 
@@ -27,7 +27,7 @@
 
 </head>
 
-<body>
+<body style="padding-top: 30px">
     <div class="container">
         <form method="post" action="{{route('preview')}}" enctype="multipart/form-data">
             @csrf
@@ -80,13 +80,13 @@
     <script src="{{ asset('js/bootstrap.js') }}"></script>
     <script src="{{ asset('js/jquery.js') }}"></script>
     <script src="{{ asset('js/popper.js') }}"></script>
-{{--    <script src="{{ asset('js/tinymce.js') }}"></script>--}}
+    <script src="{{ asset('js/tinymce.js') }}"></script>
     <script src="{{ asset('js/tinymce-jquery.js') }}"></script>
     <script>
         $('.tox-notifications-container').css('display', 'none');
 
         $('textarea#tiny').tinymce({
-            height: 700,
+            height: 900,
             // width: 750,
             plugins: [
                 'advlist','autolink',

@@ -1,72 +1,81 @@
-<head>
-    <title>My Simple Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin-top: 50px;
-            padding-left: 40px;
-            margin-right: 30px;
-            /*text-align: justify;*/
-            text-indent: 0.0cm; /* Adjust the value as needed */
-            margin-left: -0.5cm;
-        }
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Print Draft</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
 
-        #title {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+                margin-top: 40%;
+                padding-left: 40px;
+                padding-right: 40px;
+                /*text-align: justify;*/
+                text-indent: 0.0cm; /* Adjust the value as needed */
+                /*margin-left: -0.5cm;*/
+            }
 
-        .d-flex-end {
-            display: flex;
-            justify-content: flex-end;
-        }
+            #title {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
 
-        .d-flex-between {
-            display: flex;
-            justify-content: space-between;
-        }
+            .d-flex-end {
+                display: flex;
+                justify-content: flex-end;
+            }
 
-        .info {
-            display: inline-block;
-            text-align: left;
-        }
+            .d-flex-between {
+                display: flex;
+                justify-content: space-between;
+            }
 
-        .d-inline-block {
-            display: inline-block;
-        }
+            .info {
+                display: inline-block;
+                text-align: left;
+            }
 
-        .align-right {
-            text-align: right;
-        }
+            .d-inline-block {
+                display: inline-block;
+            }
 
-        .margin-left {
-            margin-left: auto;
-        }
+            .align-right {
+                text-align: right;
+            }
 
-        button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
+            .margin-left {
+                margin-left: auto;
+            }
 
-        button:hover {
-            background-color: #0056b3;
-        }
+            button {
+                display: block;
+                width: 100%;
+                padding: 10px;
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+            }
 
-        article {
-            text-align: left;
-        }
+            button:hover {
+                background-color: #0056b3;
+            }
 
-    </style>
-</head>
-<body style=" margin-left: 5px">
-    <p id="title" style="font-size: 16px"> TITLE DOCUMENT - KEEP IN SAFE CUSTODY</p>
-    <div class="d-flex-end">
+            article {
+                text-align: left;
+            }
+            .fontSize{
+                font-size: 12pt;
+            }
+
+        </style>
+    </head>
+<body>
+    <p id="title" class="fontSize"> TITLE DOCUMENT - KEEP IN SAFE CUSTODY</p>
+    <div class="d-flex-end fontSize">
         <div class="info">
             <div class="mb-0">
                 <b>Defense Housing Authority, Quetta</b>
@@ -84,58 +93,54 @@
             </div>
         </div>
     </div>
-    <div class="d-inline-block" style="padding-top: 10px; margin-top: 15px; max-width: 74%">
-        <div class="d-inline-block" style="vertical-align: top; ">To</div>
-        <div class="d-inline-block" style="margin-left: 20px; ">
+    <div class="fontSize">
+        <div class="d-inline-block" style="vertical-align: top;">
+            To
+        </div>
+        <div class="d-inline-block" style="margin-left: 20px; vertical-align: top; max-width: 50%; ">
             <article>{{$cusDetails[0]->name }} {{$cusDetails[0]->relation_title }} {{$cusDetails[0]->So_Do_Wo }}</article>
             <article>({{$cusDetails[0]->cnic_nicop }})</article>
             <article>{{$cusDetails[0]->present_address }}</article>
             <article>{{$cusDetails[0]->phone_no }}</article>
         </div>
-        @if(count($cusDetails) > 1)
-            <span class="mt-5" style="margin-left: 40px; display: inline-block; margin-top: 20px">
+        <div class="d-inline-block" style="vertical-align: top; position: absolute; right: 49px;">
+            @if(count($cusDetails) > 1)
+                <img src="{{asset('/pictures/shareA.png')}}" alt="Image Description" height="100" width="95">
+            @endif
+            <img src="{{ url('/profile-pic/' . urlencode($cusDetails[0]->customer_id)) }}.jpg" alt="Profile Picture" height="80" width="70">
+        </div>
+    </div>
+    @if(count($cusDetails) > 1)
+        <div style="margin-top: 10px;">
+            <div class="d-inline-block fontSize" style="margin-top: 10px; margin-left: 40px; max-width: 70%;" >
                 <article>{{$cusDetails[1]->name }} {{$cusDetails[1]->relation_title }} {{$cusDetails[1]->So_Do_Wo }}</article>
                 <article>({{$cusDetails[1]->cnic_nicop }})</article>
                 <article>{{$cusDetails[1]->present_address }}</article>
                 <article>{{$cusDetails[1]->phone_no }}</article>
-            </span>
-        @endif
-    </div>
-    <div class="d-inline-block" style="text-align: right ;padding-right: 0">
-        <div class="">
-            <img src="{{asset('/pictures/shareA.png')}}" alt="Image Description" height="100" width="95">
-            <img src="{{ url('/profile-pic/' . urlencode($cusDetails[0]->customer_id)) }}.jpg" alt="Profile Picture" height="80" width="70">
-        </div>
-        @if(count($cusDetails) > 1)
-            <div class="mt-4">
+            </div>
+            <div class="d-inline-block" style="vertical-align: top; position: absolute; right: 49px">
                 <img src="{{asset('/pictures/shareA.png')}}" alt="Image Description" height="100" width="95">
                 <img src="{{ url('/profile-pic/' . urlencode($cusDetails[1]->customer_id)) }}.jpg" alt="Profile Picture" height="80" width="70">
             </div>
-        @endif
+        </div>
+    @endif
+    <div class="subject fontSize" style="margin-top: 17px;"> Subject:
+        <span><b><u>{{ $draftTitle}}</u></b></span>
     </div>
-    <div class="subject" style="margin-top: 17px"> Subject:
-        <span>
-            <b>
-                <u>{{ $draftTitle}}</u>
-            </b>
-        </span>
-    </div>
-    <div>
-        DHAQ Membership No. {{ $cusDetails[0]->membership_prefix_no }}  @if(count($cusDetails) > 1) (A) reference  @endif
-    </div>
+    <div class="fontSize" style="margin-top: 10px"> DHAQ Membership No. {{ $cusDetails[0]->membership_prefix_no }}  @if(count($cusDetails) > 1) (A) reference  @endif </div>
     @if(count($cusDetails) > 1)
-        <div style="margin-top: -1px">
+        <div style="margin-top: -1px;" class="fontSize">
             DHAQ Membership No. {{ $cusDetails[1]->membership_prefix_no }} (B) reference
         </div>
     @endif
-    <div class="body" style="margin-top: 15px;">
+    <div class="body" style="margin-top: 10px;">
         {!! $content !!}
     </div>
+
+    <script>
+        window.onload = function () {
+            window.print();
+        }
+    </script>
 </body>
-<script>
-    window.onload = function() {
-        window.print();
-    }
-</script>
-
-
+</html>
